@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block homeactive %}active {% endblock homeactive %}
+
+{% block title %} Home{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .post-image {
+        width: 200px;
+        height: 250px;
+        object-fit: cover;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block body %}
+<div class="container">
+    <div class="jumbotron my-3">
+        <h1 class="display-4">Welcome to CyberShield Blogs!</h1>
+        <p class="lead">Stay informed with our latest articles on cybersecurity.</p>
+        <hr class="my-4">
+        <p>Explore insightful articles written by experts in the field of cybersecurity. Whether you're a beginner or an expert, there's something for everyone!</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'blogHome' %}" role="button">Go to Blog</a>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Latest Blog Posts</h2>
+    {% for post in latest_posts %}
+    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 my-4 position-relative">
+        <div class="col p-4 d-flex flex-column position-static">
+            <div class="mb-1 text-muted">
+                <span class="badge badge-primary"><i class="fas fa-bookmark"></i> {{ post.category }}</span>
+            </div>
+            <h3 class="mb-0">{{ post.title }}</h3>
+            <div class="mb-1 text-muted">{{ post.timeStamp|date:"M d, Y" }}</div>
+            <p class="card-text mb-auto">{{ post.content|truncatewords_html:50|safe }}</p>
+            <a href="{% url 'blogPost' slug=post.slug %}" class="stretched-link">Continue reading</a>
+        </div>
+        <div class="col-auto d-none d-lg-block">
+            {% if forloop.counter0 == 0 %}
+            <img src="https://media.istockphoto.com/id/1628553826/photo/ai-or-artificial-intelligence-concept-businessman-using-computer-use-ai-to-help-business-and.jpg?s=1024x1024&w=is&k=20&c=3qRYQXANX1vXIGA3Le4Xjd7pT8kZ-7LDDbTBTH5uIQ0=" style="width:20rem; height:20rem" class="post-image bd-placeholder-img" alt="Thumbnail">
+            {% elif forloop.counter0 == 1 %}
+            <img src="https://media.istockphoto.com/id/1785752228/photo/multi-level-security-system.jpg?s=1024x1024&w=is&k=20&c=XhNiDPbCiOxX0qy7zUGB_SnUE8Yj0AztDMq4TM8Wmfk=" style="width:20rem; height:15rem" class="post-image bd-placeholder-img" alt="Thumbnail">
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

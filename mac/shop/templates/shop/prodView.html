@@ -1,0 +1,144 @@
+{% extends 'shop/basic.html' %}
+{% block title %} {{ product.product_name }} -- My Awesome Cart {% endblock %}
+{% block body %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="row">
+                <img src="/media/{{ product.image }}" width="233px" height="385px">
+            </div>
+            <div class="row mt-3">
+                <a class="btn btn-primary mx-2" id="buyNow">Buy Now</a>
+                <span id="divpr{{ product.id }}" class="divpr">
+                    <button id="pr{{ product.id }}" class="btn btn-primary cart">Add To Cart</button>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h5 id="namepr{{ product.id }}">{{ product.product_name }}</h5>
+            <p><b> Rs. <span id="pricepr{{ product.id }}">{{ product.price }}</span></b></p>
+            <p>{{ product.desc | safe }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Initialize cart
+    let cart = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : {};
+
+    function updateCartUI() {
+        let cartCount = Object.values(cart).reduce((sum, item) => sum + item[0], 0);
+        document.getElementById('cart').innerText = cartCount;
+
+        let popStr = "<h5>Cart for your items</h5><div class='mx-2 my-2'>";
+        let i = 1;
+        for (let item in cart) {
+            if (cart.hasOwnProperty(item)) {
+                popStr += `<b>${i}</b>. ${cart[item][1]} Qty: ${cart[item][0]}<br>`;
+                i += 1;
+            }
+        }
+        popStr += `</div> <a href='/shop/checkout'><button class='btn btn-primary' id='checkout'>Checkout</button></a> <button class='btn btn-primary' id='clearCart'>Clear Cart</button>`;
+        document.getElementById('popcart').setAttribute('data-content', popStr);
+        $('#popcart').popover('show');
+        document.getElementById('clearCart').addEventListener('click', clearCart);
+    }
+
+    function addToCart(id, name, price) {
+        try {
+            // Check if id, name, and price are valid
+            if (!id || !name || !price) {
+                throw new Error('Product information is incomplete.');
+            }
+
+            if (cart['pr' + id]) {
+                cart['pr' + id][0] += 1;
+            } else {
+                cart['pr' + id] = [1, name, parseFloat(price)];
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            updateProductUI(id);
+        } catch (error) {
+            console.error('Error adding to cart:', error.message);
+            // Optionally, notify the user of the error
+            alert('Failed to add item to cart. Please try again.');
+        }
+    }
+
+    function clearCart() {
+        localStorage.clear();
+        cart = {};
+        updateCartUI();
+    }
+
+    function updateProductUI(id) {
+        let divpr = document.getElementById('divpr' + id);
+        if (cart['pr' + id]) {
+            divpr.innerHTML = `
+                <button id="minus${id}" class="btn btn-primary minus">-</button>
+                <span id="val${id}">${cart['pr' + id][0]}</span>
+                <button id="plus${id}" class="btn btn-primary plus">+</button>
+            `;
+        } else {
+            divpr.innerHTML = `<button id="pr${id}" class="btn btn-primary cart">Add To Cart</button>`;
+        }
+        attachPlusMinusListeners(id);
+    }
+
+    function attachPlusMinusListeners(id) {
+        let minusButton = document.getElementById('minus' + id);
+        let plusButton = document.getElementById('plus' + id);
+
+        if (minusButton) {
+            minusButton.addEventListener('click', function() {
+                if (cart['pr' + id] && cart['pr' + id][0] > 0) {
+                    cart['pr' + id][0] -= 1;
+                    if (cart['pr' + id][0] === 0) {
+                        delete cart['pr' + id];
+                    }
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartUI();
+                    updateProductUI(id);
+                }
+            });
+        }
+
+        if (plusButton) {
+            plusButton.addEventListener('click', function() {
+                if (cart['pr' + id]) {
+                    cart['pr' + id][0] += 1;
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCartUI();
+                    updateProductUI(id);
+                }
+            });
+        }
+    }
+
+    document.querySelectorAll('.cart').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            let id = '{{ product.id }}';
+            let name = document.getElementById('namepr' + id)?.innerText;
+            let price = document.getElementById('pricepr' + id)?.innerText;
+            addToCart(id, name, price);
+        });
+    });
+
+    document.getElementById('buyNow').addEventListener('click', function(event) {
+        event.preventDefault();
+        let id = '{{ product.id }}';
+        let name = document.getElementById('namepr' + id)?.innerText;
+        let price = document.getElementById('pricepr' + id)?.innerText;
+        addToCart(id, name, price);
+        window.location.href = '/shop/checkout';
+    });
+
+    updateCartUI();
+});
+</script>
+{% endblock %}

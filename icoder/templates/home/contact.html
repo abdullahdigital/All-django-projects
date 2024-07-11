@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block contactactive %}active {% endblock contactactive %}
+{% block title %}Contact{% endblock title %}
+
+{% block body %}
+<div class="container my-3">
+    <h3>Contact iCoder Admin</h3>
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form id="contactForm" action="/contact" method="post" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" aria-describedby="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" required>
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Describe your issue:</label>
+            <textarea class="form-control" name="content" id="content" cols="30" rows="5" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script>
+    function validateForm() {
+        // Get form elements
+        var name = document.getElementById('name').value;
+        var email = document.getElementById('email').value;
+        var phone = document.getElementById('phone').value;
+        var content = document.getElementById('content').value;
+
+        // Basic HTML entity encoding to prevent XSS
+        function sanitizeInput(input) {
+            var element = document.createElement('div');
+            element.innerText = input;
+            return element.innerHTML;
+        }
+
+        // Sanitize inputs
+        name = sanitizeInput(name);
+        email = sanitizeInput(email);
+        phone = sanitizeInput(phone);
+        content = sanitizeInput(content);
+
+        // Validate name
+        if (name === "") {
+            alert("Name must be filled out");
+            return false;
+        }
+
+        // Validate phone number
+        var phonePattern = /^[0-9]{10}$/;
+        if (!phonePattern.test(phone)) {
+            alert("Please enter a valid 10-digit phone number");
+            return false;
+        }
+
+        // Validate content
+        if (content === "") {
+            alert("Please describe your issue");
+            return false;
+        }
+
+        // All validations passed
+        return true;
+    }
+</script>
+{% endblock %}

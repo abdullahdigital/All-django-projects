@@ -1,0 +1,61 @@
+{% extends 'shop/basic.html' %}
+{% block title %}Contact Us{% endblock %}
+{% block body %}
+<div class="container my-3">
+  <h3>Contact Us</h3>
+  <form id="contactForm" action="/shop/contact/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name" name="name" placeholder="Enter Your Name" pattern="[A-Za-z ]+" title="Only alphabetic characters and spaces are allowed" required>
+      <div class="invalid-feedback">
+        Please enter your name using only alphabetic characters and spaces.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your Email" required>
+      <div class="invalid-feedback">
+        Please enter a valid email address.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter Your Phone Number" pattern="[0-9]{11}" title="Phone number must be 11 digits long" required>
+      <div class="invalid-feedback">
+        Please enter a valid 11-digit phone number.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="desc">How May We Help You?</label>
+      <textarea class="form-control" id="desc" name="desc" rows="3" required></textarea>
+      <div class="invalid-feedback">
+        Please describe how we may help you.
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success">Submit</button>
+  </form>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('contactForm');
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+    } else {
+      form.submit();
+    }
+    form.classList.add('was-validated');
+  }, false);
+
+  {% if thank %}
+  alert('Thanks for contacting us. We will get back to you soon!');
+  document.location = "/shop/contact";
+  {% endif %}
+});
+</script>
+{% endblock %}
